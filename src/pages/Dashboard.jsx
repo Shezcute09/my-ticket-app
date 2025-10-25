@@ -1,55 +1,60 @@
-// src/pages/Dashboard.jsx - Updated
-import {
-  Container,
-  Typography,
-  Box,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-} from "@mui/material";
-import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Container, Typography, Box, Button, Grid, Card, CardContent, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { useAuth } from '../contexts/AuthContext';
+import { useTickets } from '../contexts/TicketContext';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const { getTicketStats } = useTickets();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const stats = getTicketStats();
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    navigate('/');
   };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
+      {/* Header - Responsive */}
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        alignItems={isMobile ? "flex-start" : "center"}
+        flexDirection={isMobile ? "column" : "row"}
+        gap={isMobile ? 2 : 0}
         mb={4}
       >
         <Typography variant="h4" component="h1">
           Dashboard
         </Typography>
-        <Box>
-          <Typography variant="body1" component="span" sx={{ mr: 2 }}>
-            Welcome, {user?.name}!
+        <Box display="flex" alignItems="center" gap={2}>
+          <Typography variant="body1" component="span">
+            Welcome, <strong>{user?.name}</strong>!
           </Typography>
-          <Button variant="outlined" onClick={handleLogout}>
+          <Button variant="outlined" onClick={handleLogout} size={isMobile ? "small" : "medium"}>
             Logout
           </Button>
         </Box>
       </Box>
 
-      {/* Stats Cards */}
-      <Grid container spacing={4} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
-          <Card
-            sx={{ borderRadius: 2, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+      {/* Stats Cards - Responsive Grid */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={6} md={3}>
+          <Card 
+            sx={{ 
+              borderRadius: 2, 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              height: '100%'
+            }}
           >
-            <CardContent sx={{ textAlign: "center", p: 3 }}>
+            <CardContent sx={{ textAlign: 'center', p: 3 }}>
               <Typography variant="h3" color="primary" gutterBottom>
-                0
+                {stats.total}
               </Typography>
               <Typography variant="h6" color="text.secondary">
                 Total Tickets
@@ -58,13 +63,17 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card
-            sx={{ borderRadius: 2, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+        <Grid item xs={6} md={3}>
+          <Card 
+            sx={{ 
+              borderRadius: 2, 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              height: '100%'
+            }}
           >
-            <CardContent sx={{ textAlign: "center", p: 3 }}>
+            <CardContent sx={{ textAlign: 'center', p: 3 }}>
               <Typography variant="h3" color="success.main" gutterBottom>
-                0
+                {stats.open}
               </Typography>
               <Typography variant="h6" color="text.secondary">
                 Open Tickets
@@ -73,16 +82,39 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card
-            sx={{ borderRadius: 2, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+        <Grid item xs={6} md={3}>
+          <Card 
+            sx={{ 
+              borderRadius: 2, 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              height: '100%'
+            }}
           >
-            <CardContent sx={{ textAlign: "center", p: 3 }}>
-              <Typography variant="h3" color="text.secondary" gutterBottom>
-                0
+            <CardContent sx={{ textAlign: 'center', p: 3 }}>
+              <Typography variant="h3" color="warning.main" gutterBottom>
+                {stats.inProgress}
               </Typography>
               <Typography variant="h6" color="text.secondary">
-                Resolved Tickets
+                In Progress
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card 
+            sx={{ 
+              borderRadius: 2, 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              height: '100%'
+            }}
+          >
+            <CardContent sx={{ textAlign: 'center', p: 3 }}>
+              <Typography variant="h3" color="text.secondary" gutterBottom>
+                {stats.closed}
+              </Typography>
+              <Typography variant="h6" color="text.secondary">
+                Resolved
               </Typography>
             </CardContent>
           </Card>
@@ -90,10 +122,11 @@ const Dashboard = () => {
       </Grid>
 
       <Box textAlign="center">
-        <Button
-          variant="contained"
+        <Button 
+          variant="contained" 
           size="large"
-          onClick={() => navigate("/tickets")}
+          onClick={() => navigate('/tickets')}
+          sx={{ minWidth: isMobile ? '100%' : 'auto' }}
         >
           Go to Ticket Management
         </Button>
